@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>College Sports Scoreboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+:root{
+--bg:#0D1117;
+--card:#161B22;
+--primary:#538ddd;
+--secondary:#A371F7;
+--text:#E6EDF3;
+--border:#30363D;
+--green:#1f9d55;
+--orange:#d97706;
+}
+*{box-sizing:border-box;font-family:Arial}
+body{margin:0;background:radial-gradient(circle at top,var(--card),var(--bg));color:var(--text);}
+.container{max-width:1100px;margin:30px auto;background:var(--card);border-radius:20px;box-shadow:0 0 35px rgba(47,129,247,.25);position:relative;}
+.header{background:linear-gradient(135deg,var(--primary),var(--secondary));padding:22px;text-align:center;font-size:26px;font-weight:bold;position:relative;z-index:1000;}
+.more{
+position:absolute;
+right:25px;
+top:18px;
+background:rgb(240, 240, 241);
+color:#111;
+padding:8px 16px;
+border-radius:25px;
+font-size:14px;
+font-weight:bold;
+cursor:pointer;
+box-shadow:0 4px 10px rgba(0,0,0,0.3);
+transition:0.3s;
+}
+
+.more-menu button:hover{
+background:#538ddd;
+color:white;
+font-weight:bold;
+padding-left:20px;
+transition:0.2s;
+}
+
+.more-menu{display:none;position:absolute;right:40px;top:65px;background:#111c2d;border:1px solid var(--border);border-radius:14px;width:200px;box-shadow:0 20px 40px rgba(0,0,0,.6);z-index:9999;}
+.more-menu button{width:100%;background:none;border:none;color:var(--text);padding:14px;text-align:left;cursor:pointer;}
+.nav{display:flex;background:#0f1623;}
+.nav div{flex:1;padding:15px;text-align:center;cursor:pointer;font-weight:bold;}
+.nav .active{background:var(--primary);color:white;}
+.content{padding:25px}
+.section{display:none}
+.section.active{display:block}
+.admin-btn{display:none;margin-bottom:15px;padding:8px 14px;background:var(--secondary);border:none;border-radius:8px;color:white;cursor:pointer;}
+body.admin .admin-btn{display:inline-block}
+
+/* MATCH SEARCH */
+.search-box{
+width:80%;
+max-width:700px;
+display:block;
+margin:0 auto 15px auto;
+padding:10px;
+border-radius:8px;
+border:1px solid var(--border);
+background:#0f1623;
+color:white;
+}
+
+/* CENTER MATCH CARD */
+.card{
+background:linear-gradient(135deg,#182335,#111c2d);
+padding:20px;
+margin:18px auto;
+border-radius:18px;
+width:80%;
+max-width:700px;
+}
+/* NEW CSS */
+
+.match-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:10px;
+font-size:18px;
+}
+
+.match-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+font-size:14px;
+margin-top:10px;
+}
+
+.match-buttons{
+margin-top:12px;
+}
+
+.status{padding:4px 10px;border-radius:12px;font-size:12px;font-weight:bold;}
+.upcoming{background:var(--orange)}
+.completed{background:var(--green)}
+
+table{width:100%;border-collapse:separate;border-spacing:0 16px;margin-top:20px;}
+th,td{padding:14px;text-align:center;}
+td:first-child{text-align:left;padding-left:25px;font-weight:bold;}
+
+.action-btn{margin-left:8px;padding:4px 8px;font-size:11px;border:none;border-radius:6px;cursor:pointer}
+.edit{background:#2563eb;color:white}
+.delete{background:#dc2626;color:white}
+
+/* MODAL */
+#modalBackdrop{
+  display:none;
+  position:fixed;
+  top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.6);
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#modalBox{
+  background:var(--card);
+  padding:25px;
+  border-radius:16px;
+  min-width:300px;
+  max-width:400px;
+  position:relative;
+}
+#modalBox h3{margin-top:0;margin-bottom:15px;text-align:center;}
+#modalBox input{
+  width:100%;
+  padding:6px;
+  border-radius:6px;
+  border:1px solid var(--border);
+  background:#0f1623;
+  color:white;
+  margin-bottom:10px;
+}
+#modalBox button{cursor:pointer;}
+.teams-center{
+text-align:center;
+font-size:22px;
+font-weight:bold;
+margin-top:5px;
+}
+
+.vs{
+color:#9ca3af;
+margin:0 6px;
+}
+
+.game-center{
+text-align:center;
+font-size:14px;
+color:#9ca3af;
+margin-top:5px;
+}
+
+.datetime-center{
+text-align:center;
+margin-top:8px;
+font-size:14px;
+color:#cbd5e1;
+}
+
+.result-grid{
+display:flex;
+justify-content:space-around;
+margin-top:15px;
+font-size:14px;
+}
+.teams-center{
+text-align:center;
+font-size:22px;
+font-weight:bold;
+margin-top:5px;
+}
+
+.vs{
+color:#9ca3af;
+margin:0 6px;
+}
+
+.game-center{
+text-align:center;
+font-size:14px;
+color:#9ca3af;
+margin-top:5px;
+}
+
+.datetime-center{
+text-align:center;
+margin-top:8px;
+font-size:14px;
+color:#cbd5e1;
+}
+
+.result-grid{
+display:flex;
+justify-content:space-around;
+margin-top:15px;
+font-size:14px;
+}
+.best-player{
+text-align:center;
+margin-top:15px;
+font-size:14px;
+line-height:1.6;
+}
+
+.best-player b{
+font-size:16px;
+color:#facc15;
+}
+.mom-name{
+font-size:18px;
+font-weight:bold;
+color:#ffce0a;
+text-shadow:0 0 8px rgba(250,204,21,0.8);
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+COLLEGE SPORTS SCOREBOARD
+<div class="more" onclick="toggleMore(event)">More ▾</div>
+
+<div class="more-menu" id="menu">
+<button onclick="adminLogin()">Admin Login</button>
+<button onclick="changePassword()">Change Password</button>
+<button onclick="logout()">Logout</button>
+</div>
+</div>
+
+<div class="nav">
+<div class="tab active" onclick="showTab('matches',this)">MATCHES</div>
+<div class="tab" onclick="showTab('table',this)">TABLE</div>
+<div class="tab" onclick="showTab('players',this)">BEST PLAYER</div>
+</div>
+
+<div class="content">
+
+<div id="matches" class="section active">
+<button class="admin-btn" onclick="addMatch()">+ Add Match</button>
+<input type="text" class="search-box" placeholder="Search by Team or Game..." onkeyup="searchMatches(this.value)">
+<div id="matchList"></div>
+</div>
+
+<div id="table" class="section">
+<button class="admin-btn" onclick="addTeam()">+ Add Team</button>
+<table>
+<thead>
+<tr>
+<th>Team</th>
+<th>TM</th>
+<th>W</th>
+<th>L</th>
+<th>D</th>
+<th>TP</th>
+<th></th>
+</tr>
+</thead>
+<tbody id="pointsBody"></tbody>
+</table>
+</div>
+
+<div id="players" class="section">
+<button class="admin-btn" onclick="addPlayer()">+ Add Player</button>
+<div id="playerList"></div>
+</div>
+
+</div>
+</div>
+
+<!-- MODAL -->
+<div id="modalBackdrop">
+  <div id="modalBox">
+    <h3 id="modalTitle"></h3>
+    <div id="modalContent"></div>
+    <div style="text-align:center;margin-top:15px;">
+      <button onclick="submitModal()" style="padding:8px 16px;background:var(--secondary);border:none;border-radius:8px;color:white;margin-right:10px;">Submit</button>
+      <button onclick="closeModal()" style="padding:8px 16px;background:#dc2626;border:none;border-radius:8px;color:white;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* DROPDOWN */
+function toggleMore(e){
+  e.stopPropagation();
+  let m=document.getElementById("menu");
+  m.style.display=m.style.display==="block"?"none":"block";
+}
+document.addEventListener("click",function(e){
+  if(!e.target.closest(".more") && !e.target.closest(".more-menu")){
+    document.getElementById("menu").style.display="none";
+  }
+});
+
+/* TABS */
+function showTab(id,el){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  el.classList.add("active");
+}
+
+/* ADMIN */
+function isAdmin(){return localStorage.getItem("admin")==="true";}
+function adminLogin(){
+
+openModal("Admin Login",[
+{key:"pass",label:"Enter Password",type:"password"}
+],function(data){
+
+let pass=data.pass;
+if(!pass) return;
+
+let saved=localStorage.getItem("adminPass");
+
+if(saved===null){
+localStorage.setItem("adminPass",pass);
+alert("Password Created");
+}
+else if(pass!==saved){
+alert("Wrong Password");
+return;
+}
+
+localStorage.setItem("admin","true");
+document.body.classList.add("admin");
+loadData();
+
+});
+
+}
+
+function changePassword(){
+
+if(!isAdmin()){
+alert("Login First");
+return;
+}
+
+openModal("Change Password",[
+{key:"current",label:"Current Password",type:"password"},
+{key:"newpass",label:"New Password",type:"password"}
+],function(data){
+
+let saved = localStorage.getItem("adminPass");
+
+if(data.current !== saved){
+alert("Current Password Wrong");
+return;
+}
+
+if(!isStrongPassword(data.newpass)){
+alert("Password must be 8 characters with letter, number and special character");
+return;
+}
+
+localStorage.setItem("adminPass",data.newpass);
+alert("Password Changed Successfully");
+
+});
+
+}
+function logout(){
+  localStorage.removeItem("admin");
+  document.body.classList.remove("admin");
+  loadData();
+}
+function isStrongPassword(pw){
+return /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/.test(pw);
+}
+
+/* SEARCH */
+function searchMatches(value){
+  value=value.toLowerCase();
+  let cards=document.querySelectorAll("#matchList .card");
+  cards.forEach(card=>{
+    let text=card.innerText.toLowerCase();
+    card.style.display=text.includes(value)?"block":"none";
+  });
+}
+
+/* MODAL LOGIC */
+let modalCallback = null;
+let modalData = {};
+function openModal(title, fields, callback, defaultValues={}) {
+  modalCallback = callback;
+  modalData = {};
+  document.getElementById("modalTitle").innerText = title;
+  
+  let html = "";
+  fields.forEach((f,index)=>{
+    html += `<div>
+      <label>${f.label}</label><br>
+      <input type="${f.type||'text'}" id="modalField_${f.key}" value="${defaultValues[f.key]||''}" data-index="${index}" ${index===0?'autofocus':''}>
+    </div>`;
+  });
+  document.getElementById("modalContent").innerHTML = html;
+
+  const inputs = Array.from(document.querySelectorAll("#modalContent input"));
+  inputs.forEach((inp, idx)=>{
+    inp.addEventListener("keydown", function(e){
+      if(e.key === "Enter"){
+        e.preventDefault();
+        if(idx < inputs.length - 1){
+          inputs[idx+1].focus();
+        } else {
+          submitModal();
+        }
+      }
+    });
+  });
+
+  document.getElementById("modalBackdrop").style.display = "flex";
+}
+
+function closeModal(){
+  document.getElementById("modalBackdrop").style.display = "none";
+  modalCallback = null;
+  modalData = {};
+}
+
+function submitModal(){
+  const inputs = document.querySelectorAll("#modalContent input");
+  inputs.forEach(inp => modalData[inp.id.replace("modalField_","")] = inp.value);
+  if(modalCallback) modalCallback(modalData);
+  closeModal();
+}
+
+/* MATCH */
+function addMatch(){
+  if(!isAdmin()) return alert("Admin Only");
+  let fields = [
+    {key:"game",label:"Game"},
+    {key:"t1",label:"Team 1"},
+    {key:"t2",label:"Team 2"},
+    {key:"date",label:"Date",type:"date"},
+    {key:"time",label:"Time",type:"time"}
+  ];
+  openModal("Add Match", fields, function(data){
+    if(!data.game || !data.t1 || !data.t2) return;
+    let matches = JSON.parse(localStorage.getItem("matches")||"[]");
+    matches.push({game:data.game,t1:data.t1,t2:data.t2,date:data.date,time:data.time,score:"",winner:"",mom:"",status:"Upcoming"});
+    localStorage.setItem("matches",JSON.stringify(matches));
+    loadData();
+  });
+}
+function editMatch(i){
+if(!isAdmin()) return alert("Admin Only");
+
+let matches = JSON.parse(localStorage.getItem("matches")||"[]");
+
+openModal("Edit Match",[
+{key:"game",label:"Game"},
+{key:"t1",label:"Team 1"},
+{key:"t2",label:"Team 2"},
+{key:"date",label:"Date",type:"date"},
+{key:"time",label:"Time",type:"time"},
+{key:"score",label:"Score"},
+{key:"winner",label:"Winner"},
+{key:"mom",label:"MOM"}
+], function(data){
+
+matches[i].game = data.game || matches[i].game;
+matches[i].t1 = data.t1 || matches[i].t1;
+matches[i].t2 = data.t2 || matches[i].t2;
+matches[i].date = data.date || matches[i].date;
+matches[i].time = data.time || matches[i].time;
+matches[i].score = data.score || matches[i].score;
+matches[i].winner = data.winner || matches[i].winner;
+matches[i].mom = data.mom || matches[i].mom;
+
+if(data.score || data.winner || data.mom){
+matches[i].status = "Completed";
+}
+
+localStorage.setItem("matches",JSON.stringify(matches));
+loadData();
+
+}, matches[i]);
+
+}
+
+function deleteMatch(i){
+  if(!confirm("Delete Match?")) return;
+  let matches = JSON.parse(localStorage.getItem("matches")||"[]");
+  matches.splice(i,1);
+  localStorage.setItem("matches",JSON.stringify(matches));
+  loadData();
+}
+
+/* TEAM */
+function addTeam(){
+  if(!isAdmin()) return alert("Admin Only");
+  let fields = [
+    {key:"name",label:"Team Name"},
+    {key:"tm",label:"Total Matches", type:"number"},
+    {key:"w",label:"Wins", type:"number"},
+    {key:"l",label:"Loss", type:"number"},
+    {key:"d",label:"Draw", type:"number"}
+  ];
+  openModal("Add Team", fields, function(data){
+    if(!data.name) return;
+    let tp = (parseInt(data.w)||0)*2 + (parseInt(data.d)||0);
+    let teams = JSON.parse(localStorage.getItem("teams")||"[]");
+    teams.push({name:data.name,tm:parseInt(data.tm)||0,w:parseInt(data.w)||0,l:parseInt(data.l)||0,d:parseInt(data.d)||0,tp});
+    localStorage.setItem("teams",JSON.stringify(teams));
+    loadData();
+  });
+}
+function editTeam(i){
+  if(!isAdmin()) return alert("Admin Only");
+  let teams = JSON.parse(localStorage.getItem("teams")||"[]");
+  openModal("Edit Team",[
+    {key:"tm",label:"Total Matches", type:"number"},
+    {key:"w",label:"Wins", type:"number"},
+    {key:"l",label:"Loss", type:"number"},
+    {key:"d",label:"Draw", type:"number"}
+  ], function(data){
+    teams[i].tm = parseInt(data.tm)||0;
+    teams[i].w = parseInt(data.w)||0;
+    teams[i].l = parseInt(data.l)||0;
+    teams[i].d = parseInt(data.d)||0;
+    teams[i].tp = teams[i].w*2 + teams[i].d;
+    localStorage.setItem("teams",JSON.stringify(teams));
+    loadData();
+  }, teams[i]);
+}
+function deleteTeam(i){
+  if(!confirm("Delete Team?")) return;
+  let teams = JSON.parse(localStorage.getItem("teams")||"[]");
+  teams.splice(i,1);
+  localStorage.setItem("teams",JSON.stringify(teams));
+  loadData();
+}
+
+/* PLAYER */
+function addPlayer(){
+  if(!isAdmin()) return alert("Admin Only");
+  let fields = [
+    {key:"name",label:"Name"},
+    {key:"dept",label:"Department"},
+    {key:"game",label:"Game"},
+    {key:"score",label:"Score"}
+  ];
+  openModal("Add Player", fields, function(data){
+    if(!data.name) return;
+    let players = JSON.parse(localStorage.getItem("players")||"[]");
+    players.push({name:data.name,dept:data.dept,game:data.game,score:data.score});
+    localStorage.setItem("players",JSON.stringify(players));
+    loadData();
+  });
+}
+function editPlayer(i){
+if(!isAdmin()) return alert("Admin Only");
+
+let players = JSON.parse(localStorage.getItem("players")||"[]");
+
+openModal("Edit Player",[
+{key:"name",label:"Player Name"},
+{key:"dept",label:"Department"},
+{key:"game",label:"Game"},
+{key:"score",label:"Score"}
+], function(data){
+
+players[i].name = data.name || players[i].name;
+players[i].dept = data.dept || players[i].dept;
+players[i].game = data.game || players[i].game;
+players[i].score = data.score || players[i].score;
+
+localStorage.setItem("players",JSON.stringify(players));
+loadData();
+
+}, players[i]);
+
+}
+function deletePlayer(i){
+  if(!confirm("Delete Player?")) return;
+  let players = JSON.parse(localStorage.getItem("players")||"[]");
+  players.splice(i,1);
+  localStorage.setItem("players",JSON.stringify(players));
+  loadData();
+}
+
+/* LOAD DATA */
+window.onload = loadData;
+function loadData(){
+  if(isAdmin()) document.body.classList.add("admin");
+
+  let matches = JSON.parse(localStorage.getItem("matches")||"[]");
+  let teams = JSON.parse(localStorage.getItem("teams")||"[]");
+  let players = JSON.parse(localStorage.getItem("players")||"[]");
+
+  /* MATCHES */
+  let list=document.getElementById("matchList");
+  list.innerHTML="";
+  matches.forEach((m,i)=>{
+    list.innerHTML+=`
+<div class="card">
+
+<div class="match-header">
+<span class="status ${m.status==="Completed"?"completed":"upcoming"}">${m.status}</span>
+</div>
+
+<div class="teams-center">
+<span style="color:${m.status==="Completed" && m.winner===m.t1 ? "#22c55e" : ""};font-weight:bold;">
+${m.t1}
+</span>
+
+<span class="vs">VS</span>
+
+<span style="color:${m.status==="Completed" && m.winner===m.t2 ? "#22c55e" : ""};font-weight:bold;">
+${m.t2}
+</span>
+</div>
+
+<div class="game-center">
+${m.game}
+</div>
+
+<div class="datetime-center">
+📅 ${m.date || "-"} <br>
+⏰ ${m.time || "-"}
+</div>
+
+<div class="result-grid">
+<div>
+Score :
+<span style="color:${m.status==='Completed' && m.score && parseInt(m.score.split('-')[0])>parseInt(m.score.split('-')[1])?'#22c55e':''};font-weight:bold;">
+${m.score ? m.score.split('-')[0] : "-"}
+</span>
+
+-
+
+<span style="color:${m.status==='Completed' && m.score && parseInt(m.score.split('-')[1])>parseInt(m.score.split('-')[0])?'#22c55e':''};font-weight:bold;">
+${m.score ? m.score.split('-')[1] : "-"}
+</span>
+</div>
+<div>Winner : <span style="color:${m.status==="Completed" ? "#22c55e" : ""};font-weight:bold;">${m.winner || "-"}</span></div>
+<div>MOM : <span class="mom-name">${m.mom || "-"}</span></div>
+</div>
+
+
+</div>
+
+${isAdmin()?`
+<div class="match-buttons">
+<button class="action-btn edit" onclick="editMatch(${i})">Edit</button>
+<button class="action-btn delete" onclick="deleteMatch(${i})">Delete</button>
+</div>
+`:""}
+
+</div>`;
+  });
+
+  /* TEAMS */
+  let sortedTeams = [...teams].sort((a,b)=>b.tp-a.tp);
+
+let body=document.getElementById("pointsBody");
+body.innerHTML="";
+
+sortedTeams.forEach((t,index)=>{
+  let i = teams.indexOf(t);
+
+  let color="";
+  if(index===0) color="color:#22c55e;font-weight:bold;";   // top team green
+  else if(index===sortedTeams.length-1) color="color:#ef4444;font-weight:bold;"; // last team red
+
+  body.innerHTML+=`
+  <tr>
+    <td>${t.name}</td>
+    <td>${t.tm}</td>
+    <td>${t.w}</td>
+    <td>${t.l}</td>
+    <td>${t.d||0}</td>
+    <td style="${color}">${t.tp}</td>
+    <td>${isAdmin()?`
+    <button class="action-btn edit" onclick="editTeam(${i})">Edit</button>
+    <button class="action-btn delete" onclick="deleteTeam(${i})">Delete</button>`:""}
+    </td>
+  </tr>`;
+});
+  /* PLAYERS */
+let pDiv=document.getElementById("playerList");
+pDiv.innerHTML="";
+
+players.forEach((p,i)=>{
+
+pDiv.innerHTML+=`
+
+<div class="card">
+
+<div class="teams-center">
+⭐ BEST PLAYER ⭐
+</div>
+
+<div class="game-center">
+${p.name}
+</div>
+
+<div class="datetime-center">
+Department : ${p.dept || "-"} <br>
+Game : ${p.game || "-"}
+</div>
+
+<div class="result-grid">
+<div>Score : ${p.score || "-"}</div>
+</div>
+
+${isAdmin()?`
+<div class="match-buttons">
+<button class="action-btn edit" onclick="editPlayer(${i})">Edit</button>
+<button class="action-btn delete" onclick="deletePlayer(${i})">Delete</button>
+</div>
+`:""}
+
+</div>
+
+`;
+
+});
+}
+</script>
+
+</body>
+</html>
